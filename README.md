@@ -1,3 +1,4 @@
+
 # <img src="logo.ico" width="38" height="38" align="texttop" alt="Location Inspector Icon" /> Location Inspector
 
 ## Overview & Motivation
@@ -24,8 +25,7 @@ To use live data, **you will need to insert your own API Key** into `config.js`.
 
 ### Video Overview (No Audio)
 
-<!-- Application Overview Video (4.1 MB) -->
-<video src="assets/demo-video.mp4" width="100%" controls poster="assets/full-dashboard.png"></video>
+https://github.com/user-attachments/assets/8d26b7c4-5b8a-411d-bd61-ad0d76c2b4ce
 
 > **You can find a comprehensive HD walkthrough of all features here:** [VISUAL_TOUR.md](VISUAL_TOUR.md)
 
