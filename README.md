@@ -43,7 +43,7 @@ To use live data, **you will need to insert your own API Key** into `config.js`.
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/location-inspector.git
+   git clone https://github.com/jonathanshimshoni/location-inspector.git
    cd location-inspector
    ```
 
@@ -171,6 +171,20 @@ Location Inspector/
 │   └── transitData.js# Hardcoded Light Rail (Dankal) station coordinates
 └── assets/           # Screenshots & demo video
 ```
+
+---
+
+## Future Directions
+
+While Location Inspector currently focuses on transit accessibility and daily commute routines, the underlying infrastructure can naturally expand to provide a full 360-degree neighborhood evaluation:
+
+* **Amenities proximity:** Instant proximity checks for supermarkets, pharmacies, gyms, cafes, and schools.
+
+* **Construction & Noise Audits:** Identifying nearby municipal construction zones, active urban renewal projects (`תמ"א 38`), or major infrastructure work.
+
+* **Green Spaces:** Distance and walkable paths to public parks and open green spaces.
+
+* **Traffic:** Highlighting heavy traffic areas and busy intersections.
 
 ---
 
