@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Location Inspector</title>
+    <link rel="icon" href="logo.ico" type="image/x-icon">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Google Fonts for premium Hebrew typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar on the Right -->
+        <aside class="sidebar">
+
+            <section class="search-section"
+                style="display: flex; align-items: center; gap: 12px; padding: 8px 16px; background-color: #fff; border-bottom: 1px solid var(--border-color);">
+                <img src="logo.ico" alt="Location Inspector Logo" class="app-logo" width="48" height="48"
+                    style="width: 48px; height: 48px; max-width: 48px; max-height: 48px; object-fit: contain; flex-shrink: 0; display: block; border-radius: 6px;">
+                <div class="search-box"
+                    style="display: flex; flex-grow: 1; min-width: 0; border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); overflow: hidden;">
+                    <input type="text" id="address-input" placeholder="הקלד כתובת בתל אביב והסביבה..."
+                        autocomplete="off"
+                        style="flex-grow: 1; min-width: 0; border: none; padding: 10px 12px; font-family: var(--font-family); font-size: 16px; outline: none; color: var(--text-primary); background: transparent;">
+                    <button id="search-btn" type="button"
+                        style="background-color: var(--primary-color); color: white; border: none; padding: 0 14px; font-family: var(--font-family); font-size: 16px; font-weight: 500; cursor: pointer; white-space: nowrap;">חיפוש</button>
+                </div>
+            </section>
+
+            <!-- Loading Spinner -->
+            <div id="loader" class="loader-container hidden">
+                <div class="spinner"></div>
+                <p>מחשב מסלולים וזמני הגעה...</p>
+            </div>
+
+            <!-- Welcome/Initial Message -->
+            <div id="initial-message" class="message-container">
+                <p>הקלד כתובת כדי לקבל מידע על זמני נסיעה ליעדים קבועים ומרחקי הליכה לתחנות תחבורה ציבורית קרובות.</p>
+            </div>
+
+            <!-- Results Section -->
+            <section id="results-section" class="results-container hidden">
+                <!-- Walking Distances Card -->
+                <div class="results-card transit-walk-card">
+                    <h2>תחנות קרובות בסביבה</h2>
+                    <div class="transit-walk-content">
+                        <h3 class="walk-section-title">תחנות אוטובוס קרובות</h3>
+                        <div id="bus-stops-container">
+                            <!-- 3 bus stops will be dynamically generated here -->
+                        </div>
+
+                        <h3 class="walk-section-title" style="margin-top: 16px; margin-bottom: 8px;">תחנת רכבת קלה קרובה
+                        </h3>
+                        <div class="walk-item" id="rail-walk-info">
+                            <div class="station-icon rail-icon"></div>
+                            <div class="walk-details">
+                                <div class="walk-title-row">
+                                    <span class="station-name" id="rail-name">-</span>
+                                    <span class="walk-time" id="rail-time">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Travel Times Cards Container -->
+                <div id="destinations-container">
+                    <!-- Cards will be dynamically generated here -->
+                </div>
+            </section>
+        </aside>
+
+        <!-- Map Container on the Left -->
+        <main class="map-container" id="map-container">
+            <div id="map"></div>
+            <!-- Mock Map Overlay (rendered when in Mock Mode) -->
+            <div id="mock-map-overlay" class="mock-map-overlay">
+                <svg id="mock-svg-map" width="100%" height="100%">
+                    <!-- Grid background -->
+                    <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="1" />
+                        </pattern>
+                        <marker id="arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#1a73e8" />
+                        </marker>
+                        <marker id="arrow-orange" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6"
+                            orient="auto-start-reverse">
+                            <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#ff9800" />
+                        </marker>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#grid)" />
+
+                    <!-- Simplified representation of Tel Aviv shore / main streets -->
+                    <path d="M 50,-100 Q 150,400 50,900" fill="none" stroke="#d0e0f5" stroke-width="40" opacity="0.3" />
+                    <!-- Shoreline -->
+                    <line x1="150" y1="0" x2="150" y2="800" stroke="#e0e0e0" stroke-width="6" />
+                    <!-- Yarkon / Namir road -->
+                    <line x1="300" y1="0" x2="300" y2="800" stroke="#e0e0e0" stroke-width="8" /> <!-- Ayalon Highway -->
+                    <path d="M 0,350 L 600,300" fill="none" stroke="#e8e8e8" stroke-width="12" /> <!-- Rokach Blvd -->
+                    <path d="M 0,600 L 600,550" fill="none" stroke="#e8e8e8" stroke-width="8" /> <!-- Arlozorov St -->
+
+                    <!-- Dynamically drawn path under mock mode -->
+                    <path id="mock-route-path" d="" fill="none" stroke="#1a73e8" stroke-width="4" class="hidden" />
+
+                    <!-- Map Markers -->
+                    <g id="mock-markers">
+                        <!-- Standard destinations and current address -->
+                    </g>
+                </svg>
+                <div class="mock-badge">מצב סימולציה (ללא מפתח API)</div>
+
+                <div class="mock-map-controls">
+                    <button id="zoom-in-mock">+</button>
+                    <button id="zoom-out-mock">-</button>
+                </div>
+            </div>
+
+            <!-- Floating Toggle Button for Left Sidebar -->
+            <button id="left-sidebar-toggle-btn" class="floating-panel-toggle" title="מרכז בקרה ופעילות API">
+                <span class="toggle-icon">📊</span>
+                <span class="toggle-badge hidden" id="log-count-badge">0</span>
+            </button>
+        </main>
+
+        <!-- Left Sidebar (Retractable Panel) -->
+        <aside id="left-sidebar" class="left-sidebar collapsed">
+            <!-- Header -->
+            <div class="left-sidebar-header">
+                <div class="left-sidebar-title-wrapper">
+                    <span class="left-sidebar-icon">📊</span>
+                    <h2>מרכז פעילות ויומן API</h2>
+                </div>
+                <button id="left-sidebar-close-btn" class="close-panel-btn" title="סגור פנל">✕</button>
+            </div>
+
+            <!-- Content Area (Scrollable) -->
+            <div class="left-sidebar-content">
+                <!-- Safe Mode Widget (moved from right sidebar) -->
+                <div id="safe-mode-widget" class="safe-mode-card">
+                    <div class="safe-mode-header">
+                        <div class="safe-mode-title-wrapper">
+                            <span class="safe-mode-icon">🛡️</span>
+                            <h3>מרכז בטיחות API</h3>
+                        </div>
+                        <span id="safe-mode-status-badge" class="status-badge live-inactive">סימולציה</span>
+                    </div>
+
+                    <div class="safe-mode-body">
+                        <!-- API Key Warning (only visible when no key is set in config.js) -->
+                        <div id="api-key-warning" class="api-key-input-container hidden">
+                            <p class="api-key-help" style="color: #c5221f; font-weight: 500;">
+                                ⚠️ מפתח API חסר בקובץ config.js.<br>אנא הזן את המפתח בקובץ config.js כדי להפעיל מידע
+                                בזמן אמת.
+                            </p>
+                        </div>
+
+                        <!-- Stats & Controls (visible when key is set) -->
+                        <div id="safe-mode-stats-container" class="stats-container">
+                            <div class="mode-toggle-row">
+                                <label>מצב עבודה:</label>
+                                <div class="toggle-buttons">
+                                    <button id="btn-mode-mock" class="toggle-btn active">סימולציה</button>
+                                    <button id="btn-mode-live" class="toggle-btn">בזמן אמת</button>
+                                </div>
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <div class="stat-label">טעינות מפה (Map Loads):</div>
+                                    <div class="stat-bar-container">
+                                        <div id="bar-maploads" class="stat-bar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="stat-value" id="val-maploads">0 / 50</div>
+                                </div>
+
+                                <div class="stat-item">
+                                    <div class="stat-label">השלמות כתובת (Autocomplete):</div>
+                                    <div class="stat-bar-container">
+                                        <div id="bar-autocomplete" class="stat-bar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="stat-value" id="val-autocomplete">0 / 100</div>
+                                </div>
+
+                                <div class="stat-item">
+                                    <div class="stat-label">חיפושי כתובת (Places):</div>
+                                    <div class="stat-bar-container">
+                                        <div id="bar-places" class="stat-bar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="stat-value" id="val-places">0 / 5</div>
+                                </div>
+
+                                <div class="stat-item">
+                                    <div class="stat-label">חישובי זמנים (Distance Matrix):</div>
+                                    <div class="stat-bar-container">
+                                        <div id="bar-matrix" class="stat-bar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="stat-value" id="val-matrix">0 / 75</div>
+                                </div>
+
+                                <div class="stat-item">
+                                    <div class="stat-label">נתיבי מפה (Directions):</div>
+                                    <div class="stat-bar-container">
+                                        <div id="bar-directions" class="stat-bar" style="width: 0%;"></div>
+                                    </div>
+                                    <div class="stat-value" id="val-directions">0 / 15</div>
+                                </div>
+                            </div>
+
+                            <div class="savings-container"
+                                style="flex-direction: column; align-items: center; gap: 4px; text-align: center;">
+                                <span class="savings-label" style="font-weight: 500; color: var(--text-primary);">סשן זה
+                                    ניצל <strong id="val-savings-pct"
+                                        style="color: var(--primary-color);">0.00%</strong> מהמכסה החודשית
+                                    החינמית</span>
+                                <span style="font-size: 12px; color: var(--text-secondary);">עלות הסשן במידה והמכסה
+                                    החודשית הסתיימה: <strong id="val-savings-cost"
+                                        style="color: var(--text-primary);">$0.000</strong></span>
+                                <span style="font-size: 11px; color: #70757a;">(לאפליקציה אין אפשרות לדעת את סטטוס המכסה
+                                    החודשית)</span>
+                            </div>
+
+                            <div class="safe-mode-actions">
+                                <button id="btn-reset-counters" class="action-btn" style="width: 100%;">איפוס
+                                    מונים</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API Log Section -->
+                <div class="api-log-section">
+                    <div class="log-section-header">
+                        <h3>יומן בקשות API בזמן אמת</h3>
+                        <button id="btn-clear-logs" class="action-btn danger log-clear-btn"
+                            style="flex-grow: 0; width: auto; padding: 4px 10px;">נקה יומן</button>
+                    </div>
+
+                    <div class="log-filters">
+                        <span class="log-filter-chip active" data-filter="all">הכל</span>
+                        <span class="log-filter-chip" data-filter="live">זמן אמת</span>
+                        <span class="log-filter-chip" data-filter="mock">סימולציה</span>
+                        <span class="log-filter-chip" data-filter="cache">מטמון</span>
+                    </div>
+
+                    <div id="api-log-container" class="log-list">
+                        <div class="log-placeholder">אין פעילות כרגע. בצע חיפוש או לחץ על מסלול כדי לראות פעילות API.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Limit Exceeded Modal -->
+    <div id="limit-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <span class="modal-icon">⚠️</span>
+            <h2>הגעת למגבלת השימוש הבטוח!</h2>
+            <p>האפליקציה עצרה פניות ל-Google API כדי למנוע חיובים לא רצויים בחשבונך.</p>
+            <div class="modal-stats">
+                <div class="modal-stat-row">טעינות מפה (Map Loads): <span id="modal-maploads-count">0</span></div>
+                <div class="modal-stat-row">השלמות כתובת (Autocomplete): <span id="modal-autocomplete-count">0</span>
+                </div>
+                <div class="modal-stat-row">חיפושים (Places): <span id="modal-places-count">0</span></div>
+                <div class="modal-stat-row">חישובי זמנים (Matrix): <span id="modal-matrix-count">0</span></div>
+                <div class="modal-stat-row">נתיבי מפה (Directions): <span id="modal-directions-count">0</span></div>
+            </div>
+            <p class="modal-instruction">ניתן להגדיל את המגבלה ב-50% לסשן הנוכחי או לאפס את המונים.</p>
+            <div class="modal-buttons">
+                <button id="modal-btn-increase" class="modal-btn primary">הגדל מגבלה</button>
+                <button id="modal-btn-reset" class="modal-btn secondary">איפוס מונים</button>
+                <button id="modal-btn-close" class="modal-btn text">המשך במצב סימולציה</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script loading layer -->
+    <script src="config.js" defer></script>
+    <script src="js/locations.js" defer></script>
+    <script src="js/transitData.js" defer></script>
+    <script src="js/logger.js" defer></script>
+    <script src="js/mockMap.js" defer></script>
+    <script src="js/googleMap.js" defer></script>
+    <script id="google-maps-script"></script>
+    <script src="js/ui.js" defer></script>
+    <script src="js/app.js" defer></script>
+</body>
+
+</html>
