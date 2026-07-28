@@ -1,6 +1,6 @@
 # Location Inspector — Visual Tour
 
-This document showcases every major screen, interaction panel, and feature in the application.
+This document showcases every major screen, interaction panel, and feature in the application (could take a few seconds to load properly).
 
 > [Back to Main README](README.md)
 
